@@ -103,16 +103,18 @@ public class ColumnFilter {
 		return onlyInsertable;
 	}
 
-	public void setOnlyInsertable(boolean onlyInsertable) {
+	public ColumnFilter setOnlyInsertable(boolean onlyInsertable) {
 		this.onlyInsertable = onlyInsertable;
+		return this;
 	}
 
 	public boolean isOnlyUpdatable() {
 		return onlyUpdatable;
 	}
 
-	public void setOnlyUpdatable(boolean onlyUpdatable) {
+	public ColumnFilter setOnlyUpdatable(boolean onlyUpdatable) {
 		this.onlyUpdatable = onlyUpdatable;
+		return this;
 	}
 
 	public Predicate<MetaInformationColumn> toPredicate() {

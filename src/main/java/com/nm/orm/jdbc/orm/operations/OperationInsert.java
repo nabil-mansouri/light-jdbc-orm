@@ -62,8 +62,9 @@ public class OperationInsert<T> extends OperationAbstract<T> {
 			MetaInformation meta = MetaRepository.getOrCreate(entity);
 			String[] generated = meta.getNames(entity, ColumnFilter.onlyGenerated());
 			if (generated.length > 0) {
-				MapSqlParameterSource toUpdate = meta.getMap(entity, ColumnFilter.onlyNonIds().setOnlyNonNull(true));
-				String[] updated = meta.getNames(entity, ColumnFilter.onlyNonIds().setOnlyNonNull(true));
+				ColumnFilter filterInsert = ColumnFilter.onlyNonIds().setOnlyNonNull(true).setOnlyInsertable(true);
+				MapSqlParameterSource toUpdate = meta.getMap(entity, filterInsert);
+				String[] updated = meta.getNames(entity, filterInsert);
 				String[] restricted = meta.getNames(entity, ColumnFilter.onlyIds());
 				Field[] idField = meta.getFields(ColumnFilter.onlyIds());
 				insert.usingColumns(updated);
@@ -73,8 +74,9 @@ public class OperationInsert<T> extends OperationAbstract<T> {
 				KeyHolder id = insert.executeAndReturnKeyHolder(toUpdate);
 				ReflectionUtils.set(entity, idField[0], id.getKey());
 			} else {
-				MapSqlParameterSource toUpdate = meta.getMap(entity, ColumnFilter.onlyNonNull());
-				String[] updated = meta.getNames(entity, ColumnFilter.onlyNonNull());
+				ColumnFilter filterInsert = ColumnFilter.noFilter().setOnlyNonNull(true).setOnlyInsertable(true);
+				MapSqlParameterSource toUpdate = meta.getMap(entity, filterInsert);
+				String[] updated = meta.getNames(entity, filterInsert);
 				insert.usingColumns(updated);
 				Assert.isTrue(updated.length > 0, "Must have columns");
 				insert.execute(toUpdate);

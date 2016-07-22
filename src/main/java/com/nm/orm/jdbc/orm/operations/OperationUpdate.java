@@ -35,11 +35,12 @@ public class OperationUpdate<T> extends OperationAbstract<T> {
 	public T operation() throws JdbcOrmException {
 		try {
 			Table table = entity.getClass().getAnnotation(Table.class);
-			// TODO restrict
+			//
 			MetaInformation meta = MetaRepository.getOrCreate(entity);
-			MapSqlParameterSource toUpdate = meta.getMap(entity, ColumnFilter.onlyNonIds().setOnlyNonNull(ignoreNull));
+			ColumnFilter filterUpdate = ColumnFilter.onlyNonIds().setOnlyNonNull(ignoreNull).setOnlyUpdatable(true);
+			MapSqlParameterSource toUpdate = meta.getMap(entity, filterUpdate);
+			String[] updated = meta.getNames(entity, filterUpdate);
 			MapSqlParameterSource toRestrict = meta.getMap(entity, ColumnFilter.onlyIds());
-			String[] updated = meta.getNames(entity, ColumnFilter.onlyNonIds().setOnlyNonNull(ignoreNull));
 			String[] restricted = meta.getNames(entity, ColumnFilter.onlyIds());
 			Assert.isTrue(restricted.length > 0, "Restricted must be not empty (update all)");
 			// BUILD QUERY
