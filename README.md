@@ -66,7 +66,7 @@ public class DaoOrmUser extends AbstractJdbcOrmDao {
 	public JdbcTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}
-
+	//OVERRIDE insertAdapter() ONLY IN IF NEEDED
 	@Override
 	protected SimpleJdbcInsertAdapter insertAdapter() {
 		return new SimpleJdbcInsertSybaseAdapter();
