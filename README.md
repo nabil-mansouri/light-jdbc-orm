@@ -4,7 +4,7 @@ A lightweight jdbc ORM using JPA annotation.
 # Author
 
 * Nabil MANSOURI <nabil.mansouri.3@gmail.com>
-* My blog : nabil.e-devservice.com
+* My blog <http://nabil.e-devservice.com>
 
 # How to use it
 
