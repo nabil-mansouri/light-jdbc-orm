@@ -38,7 +38,7 @@ public class User {
 	@Column(name = "FIRST_NAME")
 	private String firstName;
 	@Column(name = "NAME")
-	private Date name;
+	private String name;
 	@OneToOne()
 	@JoinColumn(name = "ADDRESS_ID", referencedColumnName = "USER_ID")
 	private Address address;
