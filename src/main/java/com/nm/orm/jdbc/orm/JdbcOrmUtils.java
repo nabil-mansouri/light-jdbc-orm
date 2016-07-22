@@ -44,9 +44,9 @@ public class JdbcOrmUtils {
 		return map1T;
 	}
 
-	public static Field getFieldForColumn(Class<?> clazz, String c) {
+	public static Field getFieldForColumn(Class<?> clazz, String c) throws Exception {
 		for (Field f : ReflectionUtils.getAllFieldsRecursive(clazz)) {
-			Column column = f.getAnnotation(Column.class);
+			Column column = ReflectionUtils.getAnnotation(f, Column.class);
 			if (column != null && StringUtils.equalsIgnoreCase(column.name(), c)) {
 				return f;
 			}

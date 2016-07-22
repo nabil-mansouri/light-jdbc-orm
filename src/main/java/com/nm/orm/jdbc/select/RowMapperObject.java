@@ -24,15 +24,15 @@ public class RowMapperObject<T> implements RowMapper<T> {
 	private Map<String, String> fieldBySql = Maps.newHashMap();
 	private Map<String, String> sqlByFields = Maps.newHashMap();
 
-	public RowMapperObject(Class<T> clazz) {
+	public RowMapperObject(Class<T> clazz) throws Exception {
 		this.clazz = clazz;
 		build();
 	}
 
-	private void build() {
+	private void build() throws Exception {
 		for (Field f : ReflectionUtils.getAllFieldsRecursive(clazz)) {
 			// COLUMN
-			Column column = f.getAnnotation(Column.class);
+			Column column = ReflectionUtils.getAnnotation(f, Column.class);
 			if (column != null) {
 				sqlByFields.put(f.getName(), column.name());
 				fieldBySql.put(column.name(), f.getName());

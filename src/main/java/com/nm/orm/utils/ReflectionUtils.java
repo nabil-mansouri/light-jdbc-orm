@@ -31,10 +31,10 @@ public class ReflectionUtils {
 		return param;
 	}
 
-	public static List<Field> getFieldHavingAnnotation(Class<?> source, Class<? extends Annotation> anno) {
+	public static List<Field> getFieldHavingAnnotation(Class<?> source, Class<? extends Annotation> anno) throws Exception {
 		List<Field> fields = Lists.newArrayList();
 		for (Field f : ReflectionUtils.getAllFieldsRecursive(source)) {
-			Object column = f.getAnnotation(anno);
+			Object column = ReflectionUtils.getAnnotation(f, anno);
 			if (column != null) {
 				fields.add(f);
 			}
@@ -104,7 +104,7 @@ public class ReflectionUtils {
 		if (founded != null) {
 			return founded;
 		}
-		Method m = new PropertyDescriptor(f.getName(), f.getType()).getReadMethod();
+		Method m = new PropertyDescriptor(f.getName(), f.getClass()).getReadMethod();
 		if (m != null) {
 			return AnnotationUtils.getAnnotation(m, clazz);
 		}

@@ -32,11 +32,11 @@ public class MetaInformationBuilder {
 		return meta;
 	}
 
-	private void buildColumns(Class<?> clazz, MetaInformation meta) {
+	private void buildColumns(Class<?> clazz, MetaInformation meta) throws Exception {
 		for (Field f : ReflectionUtils.getAllFieldsRecursive(clazz)) {
-			Column column = f.getAnnotation(Column.class);
-			Id id = f.getAnnotation(Id.class);
-			GeneratedValue generated = f.getAnnotation(GeneratedValue.class);
+			Column column = ReflectionUtils.getAnnotation(f, Column.class);
+			Id id = ReflectionUtils.getAnnotation(f, Id.class);
+			GeneratedValue generated = ReflectionUtils.getAnnotation(f,GeneratedValue.class);
 			if (column != null) {
 				MetaInformationColumn col = new MetaInformationColumn();
 				col.setColumn(column);
