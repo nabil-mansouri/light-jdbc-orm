@@ -3,8 +3,8 @@ A lightweight jdbc ORM using JPA annotation.
 
 # Author
 
-Nabil MANSOURI <nabil.mansouri.3@gmail.com>
-See More ON : nabil.e-devservice.com
+* Nabil MANSOURI <nabil.mansouri.3@gmail.com>
+* My blog : nabil.e-devservice.com
 
 # How to use it
 
