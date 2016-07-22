@@ -29,9 +29,8 @@ public class RowMapperObject<T> implements RowMapper<T> {
 		build();
 	}
 
-	// TODO recursive fields?
 	private void build() {
-		for (Field f : clazz.getDeclaredFields()) {
+		for (Field f : ReflectionUtils.getAllFieldsRecursive(clazz)) {
 			// COLUMN
 			Column column = f.getAnnotation(Column.class);
 			if (column != null) {

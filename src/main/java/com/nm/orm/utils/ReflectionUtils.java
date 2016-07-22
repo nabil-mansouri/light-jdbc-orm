@@ -1,13 +1,17 @@
 package com.nm.orm.utils;
 
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.core.annotation.AnnotationUtils;
 
 import com.google.common.collect.Lists;
 
@@ -93,6 +97,18 @@ public class ReflectionUtils {
 		Field staticField = getAllFields(o.getClass()).get(fieldName);
 		makeModifiable(staticField);
 		staticField.set(o, newValue);
+	}
+
+	public static <T extends Annotation> T getAnnotation(Field f, Class<T> clazz) throws Exception {
+		T founded = AnnotationUtils.getAnnotation(f, clazz);
+		if (founded != null) {
+			return founded;
+		}
+		Method m = new PropertyDescriptor(f.getName(), f.getType()).getReadMethod();
+		if (m != null) {
+			return AnnotationUtils.getAnnotation(m, clazz);
+		}
+		return null;
 	}
 
 	public static void makeModifiable(Field nameField) throws Exception {

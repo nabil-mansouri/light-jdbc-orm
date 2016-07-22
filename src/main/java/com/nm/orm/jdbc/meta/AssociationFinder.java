@@ -31,7 +31,7 @@ public class AssociationFinder {
 		List<MetaInformationAssociation> all = Lists.newArrayList();
 		List<Field> fields = ReflectionUtils.getFieldHavingAnnotation(clazz, annotation);
 		for (Field f : fields) {
-			JoinColumns joins = f.getAnnotation(JoinColumns.class);
+			JoinColumns joins = ReflectionUtils.getAnnotation(f, JoinColumns.class);
 			JoinColumn join = f.getAnnotation(JoinColumn.class);
 			if (joins != null || join != null) {
 				MetaInformationAssociation meta = new MetaInformationAssociation();
