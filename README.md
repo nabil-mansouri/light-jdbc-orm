@@ -8,7 +8,20 @@ See More ON : nabil.e-devservice.com
 
 # How to use it
 
-## 1- Annotate your domain object using JPA annotations
+## 1- Import dependency
+
+```
+
+<dependency>
+	<groupId>com.nabil.mansouri</groupId>
+	<artifactId>light-jdbc-orm</artifactId>
+	<version>0.0.1</version>
+</dependency>
+	
+```	
+
+		
+## 2- Annotate your domain object using JPA annotations
 
 
 ```
@@ -37,7 +50,7 @@ public class User {
 
 ```
 
-## 2- Make a DAO
+## 3- Make a DAO
 
 ```
 @Repository
@@ -61,7 +74,7 @@ public class DaoOrmUser extends AbstractJdbcOrmDao {
 }
 ```
 
-## 3- Use it
+## 4- Use it
 
 ```
 User model = new User();
@@ -93,7 +106,7 @@ dao.refresh(model);
 dao.delete(model);
 ```
 
-## TODOS
+# TODOS
 
 Manage @ManyToMany entities using @JoinTable
 
