@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.nm.orm.utils.BeanAnnotationProperty;
 import com.nm.orm.utils.ReflectionUtils;
 
 /**
@@ -45,10 +46,9 @@ public class JdbcOrmUtils {
 	}
 
 	public static Field getFieldForColumn(Class<?> clazz, String c) throws Exception {
-		for (Field f : ReflectionUtils.getAllFieldsRecursive(clazz)) {
-			Column column = ReflectionUtils.getAnnotation(f, Column.class);
-			if (column != null && StringUtils.equalsIgnoreCase(column.name(), c)) {
-				return f;
+		for (BeanAnnotationProperty<Column> b : ReflectionUtils.findAnnotationProperty(clazz, Column.class)) {
+			if (b.founded() && StringUtils.equalsIgnoreCase(b.getAnnotation().name(), c)) {
+				return b.getField();
 			}
 		}
 		return null;

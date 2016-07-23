@@ -3,8 +3,6 @@ package com.nm.orm.jdbc.orm;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.Table;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -24,7 +22,7 @@ public abstract class JdbcOrmAssociationProcessor {
 		Collection<MetaInformationAssociation> assoc = MetaRepository.getOrCreate(o).getAssociationsCollection();
 		for (MetaInformationAssociation a : assoc) {
 			if (isOk(a)) {
-				Table table = a.getTarget().getAnnotation(Table.class);
+				String table = JdbcOrmUtils.getFullTableName(a.getTarget()); 
 				// BUILD QUERY
 				MapSqlParameterSource map = a.getMap(o);
 				List<String> ands = Lists.newArrayList();
@@ -32,7 +30,7 @@ public abstract class JdbcOrmAssociationProcessor {
 					ands.add(String.format("%s = :%s", s, s));
 				}
 				String where = StringUtils.join(ands, " AND ");
-				String sql = String.format("SELECT * FROM %s WHERE %s", table.name(), where);
+				String sql = String.format("SELECT * FROM %s WHERE %s", table, where);
 				@SuppressWarnings("unchecked")
 				Class<Object> cl = (Class<Object>) a.getTarget();
 				RowMapperObject<Object> mapper = new RowMapperObject<Object>(cl);
@@ -44,6 +42,7 @@ public abstract class JdbcOrmAssociationProcessor {
 
 	protected abstract boolean isOk(MetaInformationAssociation a) throws Exception;
 
-	protected abstract void onFoundedList(Object root, List<Object> founded, MetaInformationAssociation context) throws Exception;
+	protected abstract void onFoundedList(Object root, List<Object> founded, MetaInformationAssociation context)
+			throws Exception;
 
 }

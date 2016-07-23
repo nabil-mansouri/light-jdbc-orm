@@ -1,7 +1,6 @@
 package com.nm.orm.jdbc.meta;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -12,6 +11,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import com.nm.orm.jdbc.meta.MetaInformationAssociation.TypeOfAssociation;
+import com.nm.orm.utils.BeanAnnotationProperty;
 import com.nm.orm.utils.ReflectionUtils;
 
 /**
@@ -20,8 +20,10 @@ import com.nm.orm.utils.ReflectionUtils;
  *
  */
 public class MetaInformationBuilder {
-	private AssociationFinder assocOneToOne = new AssociationFinder(TypeOfAssociation.OneToOne, OneToOne.class);
-	private AssociationFinder assocOneToMany = new AssociationFinder(TypeOfAssociation.OneToMany, OneToMany.class);
+	private AssociationFinder<OneToOne> assocOneToOne = new AssociationFinder<>(TypeOfAssociation.OneToOne,
+			OneToOne.class);
+	private AssociationFinder<OneToMany> assocOneToMany = new AssociationFinder<>(TypeOfAssociation.OneToMany,
+			OneToMany.class);
 
 	public MetaInformation build(Class<?> clazz) throws Exception {
 		MetaInformation meta = new MetaInformation();
@@ -33,16 +35,16 @@ public class MetaInformationBuilder {
 	}
 
 	private void buildColumns(Class<?> clazz, MetaInformation meta) throws Exception {
-		for (Field f : ReflectionUtils.getAllFieldsRecursive(clazz)) {
-			Column column = ReflectionUtils.getAnnotation(f, Column.class);
-			Id id = ReflectionUtils.getAnnotation(f, Id.class);
-			GeneratedValue generated = ReflectionUtils.getAnnotation(f,GeneratedValue.class);
-			if (column != null) {
+		for (BeanAnnotationProperty<Column> f : ReflectionUtils.findAnnotationProperty(clazz, Column.class)) {
+			if (f.founded()) {
+				BeanAnnotationProperty<Id> bId = ReflectionUtils.findAnnotationProperty(clazz, f.getField(), Id.class);
+				BeanAnnotationProperty<GeneratedValue> bGenerated = ReflectionUtils.findAnnotationProperty(clazz,
+						f.getField(), GeneratedValue.class);
 				MetaInformationColumn col = new MetaInformationColumn();
-				col.setColumn(column);
-				col.setField(f);
-				col.setId(id);
-				col.setGenerated(generated);
+				col.setColumn(f.getAnnotation());
+				col.setField(f.getField());
+				col.setId(bId.getAnnotation());
+				col.setGenerated(bGenerated.getAnnotation());
 				meta.add(col);
 			}
 		}

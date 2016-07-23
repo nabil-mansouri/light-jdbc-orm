@@ -45,7 +45,11 @@ public class User {
 	@OneToMany
 	@JoinColumn(name = "USER_ID")
 	private List<Attribute> attributes = Lists.newArrayList();
-
+	
+	@Column(name = "PHONE",insertable=true,updatable=false)
+	public String getPhone(){
+		return this.phone;
+	}
 }
 
 ```
