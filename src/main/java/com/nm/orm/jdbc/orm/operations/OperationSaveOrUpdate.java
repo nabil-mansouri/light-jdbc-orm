@@ -23,7 +23,7 @@ public class OperationSaveOrUpdate<T> extends OperationAbstract<T> {
 	public T operation() throws JdbcOrmException {
 		try {
 			// TRY TO GET THEN UPDATE
-			new OperationGetByExample<T>(jdbc, entity).operation();
+			new OperationGetByExampleId<T>(jdbc, entity).operation();
 			return new OperationUpdate<T>(entity, jdbc).operation();
 		} catch (Exception e) {
 			// IF FAILED => INSERT

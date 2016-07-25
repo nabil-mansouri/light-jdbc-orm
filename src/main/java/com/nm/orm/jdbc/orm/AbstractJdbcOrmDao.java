@@ -19,6 +19,7 @@ import com.nm.orm.jdbc.orm.operations.OperationCleanUnAttached;
 import com.nm.orm.jdbc.orm.operations.OperationCleanUnPersisted;
 import com.nm.orm.jdbc.orm.operations.OperationDelete;
 import com.nm.orm.jdbc.orm.operations.OperationGetByExample;
+import com.nm.orm.jdbc.orm.operations.OperationGetByExampleId;
 import com.nm.orm.jdbc.orm.operations.OperationGetById;
 import com.nm.orm.jdbc.orm.operations.OperationGetByIdList;
 import com.nm.orm.jdbc.orm.operations.OperationGetByMap;
@@ -114,6 +115,10 @@ public abstract class AbstractJdbcOrmDao {
 
 	public <T> T getByExample(T example) throws JdbcOrmException {
 		return new OperationGetByExample<T>(getJdbcTemplate(), example).operation();
+	}
+
+	public <T> T getByExampleId(T example) throws JdbcOrmException {
+		return new OperationGetByExampleId<T>(getJdbcTemplate(), example).operation();
 	}
 
 	public NamedParameterJdbcTemplate getNamedTemplate() {

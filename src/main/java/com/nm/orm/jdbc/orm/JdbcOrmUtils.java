@@ -63,9 +63,9 @@ public class JdbcOrmUtils {
 
 	public static void setId(Object entity, KeyHolder id, Field fieldId) throws InvalidDataAccessApiUsageException, Exception {
 		Object value = id.getKey();
-		if (fieldId.getType().equals(Integer.class)) {
+		if (fieldId.getType().equals(Integer.class) || fieldId.getType().equals(int.class)) {
 			value = id.getKey().intValue();
-		} else if (fieldId.getType().equals(Long.class)) {
+		} else if (fieldId.getType().equals(Long.class) || fieldId.getType().equals(long.class)) {
 			value = id.getKey().longValue();
 		} else if (fieldId.getType().equals(BigInteger.class)) {
 			value = BigInteger.valueOf(id.getKey().longValue());

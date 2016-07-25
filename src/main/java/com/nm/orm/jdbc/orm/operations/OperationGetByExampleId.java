@@ -12,10 +12,10 @@ import com.nm.orm.utils.JdbcOrmException;
  * @author MANSOURI Nabil <nabil.mansouri.3@gmail.com>
  *
  */
-public class OperationGetByExample<T> extends OperationAbstract<T> {
+public class OperationGetByExampleId<T> extends OperationAbstract<T> {
 	private final T example;
 
-	public OperationGetByExample(JdbcTemplate template, T example) {
+	public OperationGetByExampleId(JdbcTemplate template, T example) {
 		super(template);
 		this.example = example;
 	}
@@ -23,7 +23,7 @@ public class OperationGetByExample<T> extends OperationAbstract<T> {
 	@SuppressWarnings("unchecked")
 	public T operation() throws JdbcOrmException {
 		try {
-			final MapSqlParameterSource toRestrict = MetaRepository.getOrCreate(example).getMap(example, ColumnFilter.noFilter());
+			final MapSqlParameterSource toRestrict = MetaRepository.getOrCreate(example).getMap(example, ColumnFilter.onlyIds());
 			Class<T> clazz = (Class<T>) example.getClass();
 			return (T) new OperationGetByMap<T>(jdbc, clazz, toRestrict).operation();
 		} catch (Exception e) {
