@@ -32,11 +32,11 @@ public class OperationGetById<T> extends OperationAbstract<T> {
 		try {
 			final String[] idName = MetaRepository.getOrCreate(clazz).getNames(clazz, ColumnFilter.onlyIds());
 			String fullTableName = JdbcOrmUtils.getFullTableName(clazz);
-			Assert.isTrue(idName.length > 0, "MUST HAVE IDS authorized");
+			Assert.isTrue(idName.length == 1, "MUST HAVE IDS authorized");
 			// BUILD QUERY
 			List<String> ands = Lists.newArrayList();
 			for (String s : idName) {
-				ands.add(String.format("%s = :%s", s, s));
+				ands.add(String.format("%s = ?", s));
 			}
 			String where = StringUtils.join(ands, " AND ");
 			String sql = String.format("SELECT * FROM %s WHERE %s", fullTableName, where);

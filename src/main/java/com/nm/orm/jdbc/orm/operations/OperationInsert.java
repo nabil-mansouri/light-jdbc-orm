@@ -15,8 +15,8 @@ import com.nm.orm.jdbc.insert.SimpleJdbcInsertAdapter;
 import com.nm.orm.jdbc.meta.ColumnFilter;
 import com.nm.orm.jdbc.meta.MetaInformation;
 import com.nm.orm.jdbc.meta.MetaRepository;
+import com.nm.orm.jdbc.orm.JdbcOrmUtils;
 import com.nm.orm.utils.JdbcOrmException;
-import com.nm.orm.utils.ReflectionUtils;
 
 /**
  * 
@@ -72,7 +72,7 @@ public class OperationInsert<T> extends OperationAbstract<T> {
 				Assert.isTrue(generated.length == 1, "Only one generated column");
 				Assert.isTrue(restricted.length == 1, "Only one id column");
 				KeyHolder id = insert.executeAndReturnKeyHolder(toUpdate);
-				ReflectionUtils.set(entity, idField[0], id.getKey());
+				JdbcOrmUtils.setId(entity, id, idField[0]);
 			} else {
 				ColumnFilter filterInsert = ColumnFilter.noFilter().setOnlyNonNull(true).setOnlyInsertable(true);
 				MapSqlParameterSource toUpdate = meta.getMap(entity, filterInsert);

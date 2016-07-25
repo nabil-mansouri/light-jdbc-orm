@@ -1,6 +1,7 @@
 package com.nm.orm.jdbc.orm;
 
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,7 +10,9 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.support.KeyHolder;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -56,6 +59,20 @@ public class JdbcOrmUtils {
 
 	public static <T> String getFullTableName(T o) throws Exception {
 		return getFullTableName(o.getClass());
+	}
+
+	public static void setId(Object entity, KeyHolder id, Field fieldId) throws InvalidDataAccessApiUsageException, Exception {
+		Object value = id.getKey();
+		if (fieldId.getType().equals(Integer.class)) {
+			value = id.getKey().intValue();
+		} else if (fieldId.getType().equals(Long.class)) {
+			value = id.getKey().longValue();
+		} else if (fieldId.getType().equals(BigInteger.class)) {
+			value = BigInteger.valueOf(id.getKey().longValue());
+		} else {
+			// NOTHING
+		}
+		ReflectionUtils.set(entity, fieldId, value);
 	}
 
 	public static <T> String getFullTableName(Class<T> o) throws Exception {

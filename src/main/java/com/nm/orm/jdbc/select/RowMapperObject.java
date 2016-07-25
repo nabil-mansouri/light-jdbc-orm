@@ -42,7 +42,9 @@ public class RowMapperObject<T> implements RowMapper<T> {
 			int columnCount = rsmd.getColumnCount();
 			for (int i = 1; i <= columnCount; i++) {
 				String name = rsmd.getColumnName(i);
-				ReflectionUtils.setValue(fieldBySql.get(name), obj, rs.getObject(name));
+				if (fieldBySql.get(name) != null) {
+					ReflectionUtils.setValue(fieldBySql.get(name), obj, rs.getObject(name));
+				}
 			}
 			return obj;
 		} catch (Exception e) {
