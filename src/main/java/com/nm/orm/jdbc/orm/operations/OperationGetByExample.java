@@ -1,5 +1,7 @@
 package com.nm.orm.jdbc.orm.operations;
 
+import java.util.List;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
@@ -14,6 +16,7 @@ import com.nm.orm.utils.JdbcOrmException;
  */
 public class OperationGetByExample<T> extends OperationAbstract<T> {
 	private final T example;
+	private OperationGetByMapList<T> operation;
 
 	public OperationGetByExample(JdbcTemplate template, T example) {
 		super(template);
@@ -25,9 +28,15 @@ public class OperationGetByExample<T> extends OperationAbstract<T> {
 		try {
 			final MapSqlParameterSource toRestrict = MetaRepository.getOrCreate(example).getMap(example, ColumnFilter.noFilter());
 			Class<T> clazz = (Class<T>) example.getClass();
-			return (T) new OperationGetByMap<T>(jdbc, clazz, toRestrict).operation();
+			operation = new OperationGetByMapList<T>(jdbc, clazz, toRestrict);
+			return operation.operation();
 		} catch (Exception e) {
 			throw new JdbcOrmException(e);
 		}
 	}
+
+	public List<?> getObjects() {
+		return operation.getObjects();
+	}
+
 }

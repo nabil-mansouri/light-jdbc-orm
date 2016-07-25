@@ -25,7 +25,7 @@ public class OperationGetByExampleId<T> extends OperationAbstract<T> {
 		try {
 			final MapSqlParameterSource toRestrict = MetaRepository.getOrCreate(example).getMap(example, ColumnFilter.onlyIds());
 			Class<T> clazz = (Class<T>) example.getClass();
-			return (T) new OperationGetByMap<T>(jdbc, clazz, toRestrict).operation();
+			return (T) new OperationGetByMapSingle<T>(jdbc, clazz, toRestrict).operation();
 		} catch (Exception e) {
 			throw new JdbcOrmException(e);
 		}

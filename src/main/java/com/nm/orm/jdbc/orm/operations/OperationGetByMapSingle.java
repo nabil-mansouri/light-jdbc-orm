@@ -19,11 +19,11 @@ import com.nm.orm.utils.JdbcOrmException;
  * @author MANSOURI Nabil <nabil.mansouri.3@gmail.com>
  *
  */
-public class OperationGetByMap<T> extends OperationAbstract<T> {
+public class OperationGetByMapSingle<T> extends OperationAbstract<T> {
 	private final Class<T> clazz;
 	private final MapSqlParameterSource id;
 
-	public OperationGetByMap(JdbcTemplate template, Class<T> clazz, MapSqlParameterSource id) {
+	public OperationGetByMapSingle(JdbcTemplate template, Class<T> clazz, MapSqlParameterSource id) {
 		super(template);
 		this.clazz = clazz;
 		this.id = id;

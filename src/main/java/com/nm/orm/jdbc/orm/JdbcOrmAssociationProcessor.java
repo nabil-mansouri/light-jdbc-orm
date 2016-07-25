@@ -22,27 +22,31 @@ public abstract class JdbcOrmAssociationProcessor {
 		Collection<MetaInformationAssociation> assoc = MetaRepository.getOrCreate(o).getAssociationsCollection();
 		for (MetaInformationAssociation a : assoc) {
 			if (isOk(a)) {
-				String table = JdbcOrmUtils.getFullTableName(a.getTarget()); 
+				String table = JdbcOrmUtils.getFullTableName(a.getTarget());
 				// BUILD QUERY
 				MapSqlParameterSource map = a.getMap(o);
-				List<String> ands = Lists.newArrayList();
-				for (String s : map.getValues().keySet()) {
-					ands.add(String.format("%s = :%s", s, s));
+				// SEARCH ONLY IF NULL
+				if (map.getValues().values().stream().filter(u -> u != null).findAny().isPresent()) {
+					List<String> ands = Lists.newArrayList();
+					for (String s : map.getValues().keySet()) {
+						ands.add(String.format("%s = :%s", s, s));
+					}
+					String where = StringUtils.join(ands, " AND ");
+					String sql = String.format("SELECT * FROM %s WHERE %s", table, where);
+					@SuppressWarnings("unchecked")
+					Class<Object> cl = (Class<Object>) a.getTarget();
+					RowMapperObject<Object> mapper = new RowMapperObject<Object>(cl);
+					List<Object> founded = template.query(sql, map, mapper);
+					onFoundedList(o, founded, a);
+				} else {
+					onFoundedList(o, Lists.newArrayList(), a);
 				}
-				String where = StringUtils.join(ands, " AND ");
-				String sql = String.format("SELECT * FROM %s WHERE %s", table, where);
-				@SuppressWarnings("unchecked")
-				Class<Object> cl = (Class<Object>) a.getTarget();
-				RowMapperObject<Object> mapper = new RowMapperObject<Object>(cl);
-				List<Object> founded = template.query(sql, map, mapper);
-				onFoundedList(o, founded, a);
 			}
 		}
 	}
 
 	protected abstract boolean isOk(MetaInformationAssociation a) throws Exception;
 
-	protected abstract void onFoundedList(Object root, List<Object> founded, MetaInformationAssociation context)
-			throws Exception;
+	protected abstract void onFoundedList(Object root, List<Object> founded, MetaInformationAssociation context) throws Exception;
 
 }

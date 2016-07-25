@@ -1,6 +1,7 @@
 package com.nm.orm.jdbc.orm;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.Table;
 
@@ -22,7 +23,7 @@ import com.nm.orm.jdbc.orm.operations.OperationGetByExample;
 import com.nm.orm.jdbc.orm.operations.OperationGetByExampleId;
 import com.nm.orm.jdbc.orm.operations.OperationGetById;
 import com.nm.orm.jdbc.orm.operations.OperationGetByIdList;
-import com.nm.orm.jdbc.orm.operations.OperationGetByMap;
+import com.nm.orm.jdbc.orm.operations.OperationGetByMapSingle;
 import com.nm.orm.jdbc.orm.operations.OperationGetUniq;
 import com.nm.orm.jdbc.orm.operations.OperationInsert;
 import com.nm.orm.jdbc.orm.operations.OperationRefresh;
@@ -98,7 +99,7 @@ public abstract class AbstractJdbcOrmDao {
 	}
 
 	public <T> T get(Class<T> clazz, MapSqlParameterSource id) throws JdbcOrmException {
-		return new OperationGetByMap<T>(getJdbcTemplate(), clazz, id).operation();
+		return new OperationGetByMapSingle<T>(getJdbcTemplate(), clazz, id).operation();
 	}
 
 	public <T> T get(Class<T> clazz, Object id) throws JdbcOrmException {
@@ -113,8 +114,11 @@ public abstract class AbstractJdbcOrmDao {
 		return op.getResults();
 	}
 
-	public <T> T getByExample(T example) throws JdbcOrmException {
-		return new OperationGetByExample<T>(getJdbcTemplate(), example).operation();
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getByExample(T example) throws JdbcOrmException {
+		OperationGetByExample<T> op = new OperationGetByExample<T>(getJdbcTemplate(), example);
+		op.operation();
+		return (List<T>) op.getObjects();
 	}
 
 	public <T> T getByExampleId(T example) throws JdbcOrmException {
