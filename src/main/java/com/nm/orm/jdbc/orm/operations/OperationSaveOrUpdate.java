@@ -21,13 +21,17 @@ public class OperationSaveOrUpdate<T> extends OperationAbstract<T> {
 	}
 
 	public T operation() throws JdbcOrmException {
+		T found = null;
 		try {
-			// TRY TO GET THEN UPDATE
-			new OperationGetByExampleId<T>(jdbc, entity).operation();
-			return new OperationUpdate<T>(entity, jdbc).operation();
+			// TRY TO GET
+			found = new OperationGetByExampleId<T>(jdbc, entity).operation();
 		} catch (Exception e) {
-			// IF FAILED => INSERT
+			// NOTHING
+		}
+		if (found == null) {
 			return new OperationInsert<T>(entity, adapter, jdbc).operation();
+		} else {
+			return new OperationUpdate<T>(entity, jdbc).operation();
 		}
 	}
 }

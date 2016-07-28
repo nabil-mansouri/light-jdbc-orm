@@ -78,6 +78,14 @@ public abstract class AbstractJdbcOrmDao {
 		return op.getUnattached();
 	}
 
+	public <T> Collection<Object> cleanUnattached(final T o, AssociationUnattachedStrategy strategy, Class<?>... filters)
+			throws JdbcOrmException {
+		OperationCleanUnAttached<T> op = new OperationCleanUnAttached<T>(o, getJdbcTemplate(),
+				new AssociationTypeFilterStrategyTarget(filters), strategy);
+		op.operation();
+		return op.getUnattached();
+	}
+
 	public <T> Collection<Object> cleanUnattached(final T o, Class<?>... filters) throws JdbcOrmException {
 		OperationCleanUnAttached<T> op = new OperationCleanUnAttached<T>(o, getJdbcTemplate(),
 				new AssociationTypeFilterStrategyTarget(filters));
