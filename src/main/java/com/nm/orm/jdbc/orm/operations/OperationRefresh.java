@@ -1,6 +1,9 @@
 package com.nm.orm.jdbc.orm.operations;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -51,7 +54,14 @@ public class OperationRefresh<T> extends OperationAbstract<T> {
 					switch (context.getType()) {
 					case ManyToMany:
 					case OneToMany:
-						ReflectionUtils.set(entity, context.getField(), founded);
+						if (context.getField().getType().isAssignableFrom(Collection.class)//
+								|| context.getField().getType().isAssignableFrom(List.class)) {
+							ReflectionUtils.set(entity, context.getField(), founded);
+						} else if (context.getField().getType().isAssignableFrom(Set.class)) {
+							ReflectionUtils.set(entity, context.getField(), new HashSet<>(founded));
+						} else {
+							ReflectionUtils.set(entity, context.getField(), founded);
+						}
 						break;
 					case OneToOne:
 						if (founded.isEmpty()) {
