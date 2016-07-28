@@ -26,7 +26,7 @@ public class OperationGetByExample<T> extends OperationAbstract<T> {
 	@SuppressWarnings("unchecked")
 	public T operation() throws JdbcOrmException {
 		try {
-			final MapSqlParameterSource toRestrict = MetaRepository.getOrCreate(example).getMap(example, ColumnFilter.noFilter());
+			final MapSqlParameterSource toRestrict = MetaRepository.getOrCreate(example).getMap(example, ColumnFilter.onlyNonNull());
 			Class<T> clazz = (Class<T>) example.getClass();
 			operation = new OperationGetByMapList<T>(jdbc, clazz, toRestrict);
 			return operation.operation();

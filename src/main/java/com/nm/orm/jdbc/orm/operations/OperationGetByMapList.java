@@ -5,11 +5,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.util.Assert;
 
 import com.google.common.collect.Lists;
-import com.nm.orm.jdbc.meta.ColumnFilter;
-import com.nm.orm.jdbc.meta.MetaRepository;
 import com.nm.orm.jdbc.orm.JdbcOrmUtils;
 import com.nm.orm.jdbc.select.RowMapperObject;
 import com.nm.orm.utils.JdbcOrmException;
@@ -33,11 +30,9 @@ public class OperationGetByMapList<T> extends OperationAbstract<T> {
 	public T operation() throws JdbcOrmException {
 		try {
 			String fullTableName = JdbcOrmUtils.getFullTableName(clazz);
-			final String[] idName = MetaRepository.getOrCreate(clazz).getNames(clazz, ColumnFilter.onlyIds());
-			Assert.isTrue(idName.length > 0, "MUST HAVE IDS authorized");
 			// BUILD QUERY
 			List<String> ands = Lists.newArrayList();
-			for (String s : idName) {
+			for (String s : map.getValues().keySet()) {
 				ands.add(String.format("%s = :%s", s, s));
 			}
 			String where = StringUtils.join(ands, " AND ");
