@@ -19,6 +19,7 @@ import com.nm.orm.jdbc.orm.operations.AssociationUnattachedStrategy;
 import com.nm.orm.jdbc.orm.operations.OperationCleanUnAttached;
 import com.nm.orm.jdbc.orm.operations.OperationCleanUnPersisted;
 import com.nm.orm.jdbc.orm.operations.OperationDelete;
+import com.nm.orm.jdbc.orm.operations.OperationDeleteAssociation;
 import com.nm.orm.jdbc.orm.operations.OperationGetByExample;
 import com.nm.orm.jdbc.orm.operations.OperationGetByExampleId;
 import com.nm.orm.jdbc.orm.operations.OperationGetById;
@@ -86,6 +87,14 @@ public abstract class AbstractJdbcOrmDao {
 
 	public <T> void delete(T o) throws JdbcOrmException {
 		new OperationDelete<T>(getJdbcTemplate(), o).operation();
+	}
+
+	public <T> void deleteAssociations(T o) throws JdbcOrmException {
+		new OperationDeleteAssociation<T>(getJdbcTemplate(), o).operation();
+	}
+
+	public <T> void deleteAssociations(T o, Class<?>... filters) throws JdbcOrmException {
+		new OperationDeleteAssociation<T>(getJdbcTemplate(), o, new AssociationTypeFilterStrategyTarget(filters)).operation();
 	}
 
 	public final <T> Collection<T> findAll(Class<T> clazz) throws JdbcOrmException {

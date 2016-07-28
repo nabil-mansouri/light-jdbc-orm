@@ -15,7 +15,7 @@ import com.nm.orm.utils.ReflectionUtils;
  */
 public class MetaInformationAssociation {
 	public enum TypeOfAssociation {
-		OneToMany, ManyToMany, OneToOne
+		OneToMany, ManyToMany, OneToOne, ManyToOne
 	}
 
 	private Field field;

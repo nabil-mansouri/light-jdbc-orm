@@ -63,14 +63,13 @@ public class OperationRefresh<T> extends OperationAbstract<T> {
 							ReflectionUtils.set(entity, context.getField(), founded);
 						}
 						break;
+					case ManyToOne:
 					case OneToOne:
 						if (founded.isEmpty()) {
 							ReflectionUtils.set(entity, context.getField(), null);
 						} else {
 							ReflectionUtils.set(entity, context.getField(), founded.iterator().next());
 						}
-					default:
-						break;
 
 					}
 				}

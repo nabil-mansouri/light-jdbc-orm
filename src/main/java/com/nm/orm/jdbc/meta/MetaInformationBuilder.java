@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -20,10 +21,9 @@ import com.nm.orm.utils.ReflectionUtils;
  *
  */
 public class MetaInformationBuilder {
-	private AssociationFinder<OneToOne> assocOneToOne = new AssociationFinder<>(TypeOfAssociation.OneToOne,
-			OneToOne.class);
-	private AssociationFinder<OneToMany> assocOneToMany = new AssociationFinder<>(TypeOfAssociation.OneToMany,
-			OneToMany.class);
+	private AssociationFinder<OneToOne> assocOneToOne = new AssociationFinder<>(TypeOfAssociation.OneToOne, OneToOne.class);
+	private AssociationFinder<OneToMany> assocOneToMany = new AssociationFinder<>(TypeOfAssociation.OneToMany, OneToMany.class);
+	private AssociationFinder<ManyToOne> assocManyToOne = new AssociationFinder<>(TypeOfAssociation.ManyToOne, ManyToOne.class);
 
 	public MetaInformation build(Class<?> clazz) throws Exception {
 		MetaInformation meta = new MetaInformation();
@@ -38,8 +38,8 @@ public class MetaInformationBuilder {
 		for (BeanAnnotationProperty<Column> f : ReflectionUtils.findAnnotationProperty(clazz, Column.class)) {
 			if (f.founded()) {
 				BeanAnnotationProperty<Id> bId = ReflectionUtils.findAnnotationProperty(clazz, f.getField(), Id.class);
-				BeanAnnotationProperty<GeneratedValue> bGenerated = ReflectionUtils.findAnnotationProperty(clazz,
-						f.getField(), GeneratedValue.class);
+				BeanAnnotationProperty<GeneratedValue> bGenerated = ReflectionUtils.findAnnotationProperty(clazz, f.getField(),
+						GeneratedValue.class);
 				MetaInformationColumn col = new MetaInformationColumn();
 				col.setColumn(f.getAnnotation());
 				col.setField(f.getField());
@@ -53,6 +53,7 @@ public class MetaInformationBuilder {
 	private void buildAssociation(Class<?> clazz, MetaInformation meta) throws Exception {
 		meta.addAll(assocOneToOne.find(clazz, meta));
 		meta.addAll(assocOneToMany.find(clazz, meta));
+		meta.addAll(assocManyToOne.find(clazz, meta));
 	}
 
 	private void buildUniqGroup(Class<?> clazz, MetaInformation meta) {
