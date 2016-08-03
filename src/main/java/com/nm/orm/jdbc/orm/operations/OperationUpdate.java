@@ -10,6 +10,7 @@ import com.google.common.base.Strings;
 import com.nm.orm.jdbc.meta.ColumnFilter;
 import com.nm.orm.jdbc.meta.MetaInformation;
 import com.nm.orm.jdbc.meta.MetaRepository;
+import com.nm.orm.jdbc.orm.listeners.UpdateListener;
 import com.nm.orm.jdbc.update.SimpleJdbcUpdate;
 import com.nm.orm.utils.JdbcOrmException;
 
@@ -21,19 +22,24 @@ import com.nm.orm.utils.JdbcOrmException;
 public class OperationUpdate<T> extends OperationAbstract<T> {
 	private boolean ignoreNull;
 	private final T entity;
+	private final UpdateListener<T> listeners;
 
-	public OperationUpdate(T entity, JdbcTemplate template) {
-		this(entity, template, false);
+	public OperationUpdate(T entity, JdbcTemplate template, UpdateListener<T> listeners) {
+		this(entity, template, false, listeners);
 	}
 
-	public OperationUpdate(T entity, JdbcTemplate template, boolean ignoreNull) {
+	public OperationUpdate(T entity, JdbcTemplate template, boolean ignoreNull, UpdateListener<T> listener) {
 		super(template);
 		this.entity = entity;
 		this.ignoreNull = ignoreNull;
+		this.listeners = listener;
 	}
 
 	public T operation() throws JdbcOrmException {
 		try {
+			if (listeners != null) {
+				listeners.beforeUpdate(entity);
+			}
 			Table table = entity.getClass().getAnnotation(Table.class);
 			//
 			MetaInformation meta = MetaRepository.getOrCreate(entity);
@@ -57,6 +63,9 @@ public class OperationUpdate<T> extends OperationAbstract<T> {
 			update.restrictingColumns(restricted);
 			update.updatingColumns(updated);
 			update.execute(toUpdate, toRestrict);
+			if (listeners != null) {
+				listeners.afterUpdate(entity);
+			}
 			return entity;
 		} catch (Exception e) {
 			throw new JdbcOrmException(e);

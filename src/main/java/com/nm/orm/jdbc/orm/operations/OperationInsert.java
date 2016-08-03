@@ -16,6 +16,7 @@ import com.nm.orm.jdbc.meta.ColumnFilter;
 import com.nm.orm.jdbc.meta.MetaInformation;
 import com.nm.orm.jdbc.meta.MetaRepository;
 import com.nm.orm.jdbc.orm.JdbcOrmUtils;
+import com.nm.orm.jdbc.orm.listeners.InsertListener;
 import com.nm.orm.utils.JdbcOrmException;
 
 /**
@@ -26,8 +27,9 @@ import com.nm.orm.utils.JdbcOrmException;
 public class OperationInsert<T> extends OperationAbstract<T> {
 	private final SimpleJdbcInsertAdapter adapter;
 	private final T entity;
+	private final InsertListener<T> listeners;
 
-	public OperationInsert(T entity, JdbcTemplate template) {
+	public OperationInsert(T entity, JdbcTemplate template, InsertListener<T> l) {
 		super(template);
 		this.entity = entity;
 		adapter = new SimpleJdbcInsertAdapter() {
@@ -36,16 +38,21 @@ public class OperationInsert<T> extends OperationAbstract<T> {
 				return new SimpleJdbcInsert(template);
 			}
 		};
+		this.listeners = l;
 	}
 
-	public OperationInsert(T entity, SimpleJdbcInsertAdapter adapter, JdbcTemplate template) {
+	public OperationInsert(T entity, SimpleJdbcInsertAdapter adapter, JdbcTemplate template, InsertListener<T> l) {
 		super(template);
 		this.entity = entity;
 		this.adapter = adapter;
+		this.listeners = l;
 	}
 
 	public T operation() throws JdbcOrmException {
 		try {
+			if (listeners != null) {
+				listeners.beforeInsert(entity);
+			}
 			Table table = entity.getClass().getAnnotation(Table.class);
 			// BUILD QUERY
 			SimpleJdbcInsert insert = adapter.build(getJdbc());
@@ -80,6 +87,9 @@ public class OperationInsert<T> extends OperationAbstract<T> {
 				insert.usingColumns(updated);
 				Assert.isTrue(updated.length > 0, "Must have columns");
 				insert.execute(toUpdate);
+			}
+			if (listeners != null) {
+				listeners.afterInsert(entity);
 			}
 			return entity;
 		} catch (Exception e) {

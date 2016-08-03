@@ -8,6 +8,7 @@ import com.nm.orm.jdbc.insert.SimpleJdbcInsertAdapter;
 import com.nm.orm.jdbc.meta.ColumnFilter;
 import com.nm.orm.jdbc.meta.MetaInformation;
 import com.nm.orm.jdbc.meta.MetaRepository;
+import com.nm.orm.jdbc.orm.listeners.SaveUpdateListener;
 import com.nm.orm.utils.JdbcOrmException;
 import com.nm.orm.utils.ReflectionUtils;
 
@@ -22,11 +23,11 @@ public class OperationSaveUniq<T> extends OperationAbstract<T> {
 	private final OperationUpdate<T> update;
 	private final OperationGetUniq<T> uniq;
 
-	public OperationSaveUniq(T entity, SimpleJdbcInsertAdapter adapter, JdbcTemplate template) {
+	public OperationSaveUniq(T entity, SimpleJdbcInsertAdapter adapter, JdbcTemplate template, SaveUpdateListener<T> l) {
 		super(template);
 		this.entity = entity;
-		insert = new OperationSaveOrUpdate<T>(template, entity, adapter);
-		update = new OperationUpdate<T>(entity, template);
+		insert = new OperationSaveOrUpdate<T>(template, entity, adapter, l);
+		update = new OperationUpdate<T>(entity, template, l);
 		uniq = new OperationGetUniq<T>(template, entity);
 	}
 

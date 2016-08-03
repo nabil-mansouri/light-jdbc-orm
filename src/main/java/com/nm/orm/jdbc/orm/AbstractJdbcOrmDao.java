@@ -15,6 +15,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 import com.google.common.collect.Sets;
 import com.nm.orm.jdbc.insert.SimpleJdbcInsertAdapter;
+import com.nm.orm.jdbc.orm.listeners.InsertListener;
+import com.nm.orm.jdbc.orm.listeners.SaveUpdateListener;
+import com.nm.orm.jdbc.orm.listeners.UpdateListener;
 import com.nm.orm.jdbc.orm.operations.AssociationListFilterStrategy;
 import com.nm.orm.jdbc.orm.operations.AssociationTypeFilterStrategy;
 import com.nm.orm.jdbc.orm.operations.AssociationTypeFilterStrategyTarget;
@@ -44,23 +47,6 @@ import com.nm.orm.utils.JdbcOrmException;
  */
 public abstract class AbstractJdbcOrmDao {
 	private NamedParameterJdbcTemplate namedTemplate;
-
-	public abstract void setJdbcTemplate(JdbcTemplate j);
-
-	public abstract JdbcTemplate getJdbcTemplate();
-
-	public <T> Collection<Object> cleanUnpersisted(final T o) throws JdbcOrmException {
-		OperationCleanUnPersisted<T> op = new OperationCleanUnPersisted<T>(o, getJdbcTemplate());
-		op.operation();
-		return op.getUnpersisted();
-	}
-
-	public <T> Collection<Object> cleanUnpersisted(final T o, Class<?>... filters) throws JdbcOrmException {
-		OperationCleanUnPersisted<T> op = new OperationCleanUnPersisted<T>(o, getJdbcTemplate(),
-				new AssociationTypeFilterStrategyTarget(filters));
-		op.operation();
-		return op.getUnpersisted();
-	}
 
 	public <T> Collection<Object> cleanUnattached(final T o) throws JdbcOrmException {
 		OperationCleanUnAttached<T> op = new OperationCleanUnAttached<T>(o, getJdbcTemplate());
@@ -96,6 +82,19 @@ public abstract class AbstractJdbcOrmDao {
 		return op.getUnattached();
 	}
 
+	public <T> Collection<Object> cleanUnpersisted(final T o) throws JdbcOrmException {
+		OperationCleanUnPersisted<T> op = new OperationCleanUnPersisted<T>(o, getJdbcTemplate());
+		op.operation();
+		return op.getUnpersisted();
+	}
+
+	public <T> Collection<Object> cleanUnpersisted(final T o, Class<?>... filters) throws JdbcOrmException {
+		OperationCleanUnPersisted<T> op = new OperationCleanUnPersisted<T>(o, getJdbcTemplate(),
+				new AssociationTypeFilterStrategyTarget(filters));
+		op.operation();
+		return op.getUnpersisted();
+	}
+
 	public <T> void delete(T o) throws JdbcOrmException {
 		new OperationDelete<T>(getJdbcTemplate(), o).operation();
 	}
@@ -126,6 +125,34 @@ public abstract class AbstractJdbcOrmDao {
 		return new OperationGetById<T>(getJdbcTemplate(), clazz, id).operation();
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getByExample(T example) throws JdbcOrmException {
+		OperationGetByExample<T> op = new OperationGetByExample<T>(getJdbcTemplate(), example);
+		op.operation();
+		return (List<T>) op.getObjects();
+	}
+
+	public <T> T getByExampleId(T example) throws JdbcOrmException {
+		return new OperationGetByExampleId<T>(getJdbcTemplate(), example).operation();
+	}
+
+	public <T> Collection<T> getByIds(Class<T> clazz, Collection<?> id) throws JdbcOrmException {
+		if (id.isEmpty())
+			return Sets.newHashSet();
+		OperationGetByIdList<T> op = new OperationGetByIdList<T>(getJdbcTemplate(), clazz, id);
+		op.operation();
+		return op.getResults();
+	}
+
+	public abstract JdbcTemplate getJdbcTemplate();
+
+	public NamedParameterJdbcTemplate getNamedTemplate() {
+		if (namedTemplate == null) {
+			return new NamedParameterJdbcTemplate(getJdbcTemplate());
+		}
+		return namedTemplate;
+	}
+
 	public <T> Optional<T> getOptional(Class<T> clazz, Object id) throws JdbcOrmException {
 		try {
 			return Optional.of(new OperationGetById<T>(getJdbcTemplate(), clazz, id).operation());
@@ -138,38 +165,16 @@ public abstract class AbstractJdbcOrmDao {
 		}
 	}
 
-	public <T> Collection<T> getByIds(Class<T> clazz, Collection<?> id) throws JdbcOrmException {
-		if (id.isEmpty())
-			return Sets.newHashSet();
-		OperationGetByIdList<T> op = new OperationGetByIdList<T>(getJdbcTemplate(), clazz, id);
-		op.operation();
-		return op.getResults();
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> List<T> getByExample(T example) throws JdbcOrmException {
-		OperationGetByExample<T> op = new OperationGetByExample<T>(getJdbcTemplate(), example);
-		op.operation();
-		return (List<T>) op.getObjects();
-	}
-
-	public <T> T getByExampleId(T example) throws JdbcOrmException {
-		return new OperationGetByExampleId<T>(getJdbcTemplate(), example).operation();
-	}
-
-	public NamedParameterJdbcTemplate getNamedTemplate() {
-		if (namedTemplate == null) {
-			return new NamedParameterJdbcTemplate(getJdbcTemplate());
-		}
-		return namedTemplate;
-	}
-
 	public <T> T getUniq(T o) throws JdbcOrmException {
 		return new OperationGetUniq<T>(getJdbcTemplate(), o).operation();
 	}
 
 	public <T> void insert(T o) throws JdbcOrmException {
-		new OperationInsert<T>(o, insertAdapter(), getJdbcTemplate()).operation();
+		new OperationInsert<T>(o, insertAdapter(), getJdbcTemplate(), null).operation();
+	}
+
+	public <T> void insert(T o, InsertListener<T> l) throws JdbcOrmException {
+		new OperationInsert<T>(o, insertAdapter(), getJdbcTemplate(), l).operation();
 	}
 
 	protected SimpleJdbcInsertAdapter insertAdapter() {
@@ -179,6 +184,12 @@ public abstract class AbstractJdbcOrmDao {
 				return new SimpleJdbcInsert(template);
 			}
 		};
+	}
+
+	public <T> void refresh(final Collection<T> o, Class<?>... filters) throws JdbcOrmException {
+		for (T oo : o) {
+			refresh(oo, filters);
+		}
 	}
 
 	public <T> void refresh(final T o) throws JdbcOrmException {
@@ -193,31 +204,49 @@ public abstract class AbstractJdbcOrmDao {
 		new OperationRefresh<T>(o, getJdbcTemplate(), null, new AssociationTypeFilterStrategyTarget(filters)).operation();
 	}
 
-	public <T> void refresh(final Collection<T> o, Class<?>... filters) throws JdbcOrmException {
-		for (T oo : o) {
-			refresh(oo, filters);
-		}
-	}
-
 	public <T> void saveOrUpdate(T o) throws JdbcOrmException {
-		new OperationSaveOrUpdate<T>(getJdbcTemplate(), o, insertAdapter()).operation();
+		new OperationSaveOrUpdate<T>(getJdbcTemplate(), o, insertAdapter(), null).operation();
 	}
 
 	public <T> void saveOrUpdateUniq(T o) throws JdbcOrmException {
-		new OperationSaveUniq<T>(o, insertAdapter(), getJdbcTemplate()).operation();
+		new OperationSaveUniq<T>(o, insertAdapter(), getJdbcTemplate(), null).operation();
 	}
+
+	public <T> void saveOrUpdate(T o, SaveUpdateListener<T> l) throws JdbcOrmException {
+		new OperationSaveOrUpdate<T>(getJdbcTemplate(), o, insertAdapter(), l).operation();
+	}
+
+	public <T> void saveOrUpdateUniq(T o, SaveUpdateListener<T> l) throws JdbcOrmException {
+		new OperationSaveUniq<T>(o, insertAdapter(), getJdbcTemplate(), l).operation();
+	}
+
+	public abstract void setJdbcTemplate(JdbcTemplate j);
 
 	public <T> void update(Collection<T> o) throws JdbcOrmException {
 		for (T oo : o) {
-			update(oo);
+			update(oo, null);
 		}
 	}
 
-	public <T> void update(T o) throws JdbcOrmException {
-		new OperationUpdate<T>(o, getJdbcTemplate()).operation();
+	public <T> void update(Collection<T> o, UpdateListener<T> l) throws JdbcOrmException {
+		for (T oo : o) {
+			update(oo, l);
+		}
 	}
 
 	public <T> void update(T o, boolean ignoreNull) throws JdbcOrmException {
-		new OperationUpdate<T>(o, getJdbcTemplate(), ignoreNull).operation();
+		new OperationUpdate<T>(o, getJdbcTemplate(), ignoreNull, null).operation();
+	}
+
+	public <T> void update(T o) throws JdbcOrmException {
+		new OperationUpdate<T>(o, getJdbcTemplate(), null).operation();
+	}
+
+	public <T> void update(T o, boolean ignoreNull, UpdateListener<T> l) throws JdbcOrmException {
+		new OperationUpdate<T>(o, getJdbcTemplate(), ignoreNull, l).operation();
+	}
+
+	public <T> void update(T o, UpdateListener<T> l) throws JdbcOrmException {
+		new OperationUpdate<T>(o, getJdbcTemplate(), l).operation();
 	}
 }
