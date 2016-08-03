@@ -2,9 +2,12 @@ package com.nm.orm.jdbc.orm;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -121,6 +124,18 @@ public abstract class AbstractJdbcOrmDao {
 
 	public <T> T get(Class<T> clazz, Object id) throws JdbcOrmException {
 		return new OperationGetById<T>(getJdbcTemplate(), clazz, id).operation();
+	}
+
+	public <T> Optional<T> getOptional(Class<T> clazz, Object id) throws JdbcOrmException {
+		try {
+			return Optional.of(new OperationGetById<T>(getJdbcTemplate(), clazz, id).operation());
+		} catch (JdbcOrmException e) {
+			Throwable ee = ExceptionUtils.getRootCause(e);
+			if (ee instanceof EmptyResultDataAccessException) {
+				return Optional.empty();
+			}
+			throw e;
+		}
 	}
 
 	public <T> Collection<T> getByIds(Class<T> clazz, Collection<?> id) throws JdbcOrmException {
